@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Battleship</title>
+<style>
+  :root{--bg:#0b1d33;--panel:#12294a;--water:#1d4e89;--water2:#2563a8;--ship:#8a99ad;--hit:#e5484d;--miss:#cfe3ff;--sunk:#7a1f22;--txt:#e8f0fb;--accent:#f5b83d}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:16px}
+  h1{margin:4px 0 2px;letter-spacing:4px}
+  #status{min-height:28px;margin:8px 0 12px;font-size:18px;color:var(--accent);text-align:center}
+  .boards{display:flex;gap:32px;flex-wrap:wrap;justify-content:center}
+  .board-wrap{background:var(--panel);padding:12px 14px 14px;border-radius:10px}
+  .board-wrap h2{margin:0 0 8px;font-size:16px;text-align:center;font-weight:600}
+  .grid{display:grid;grid-template-columns:22px repeat(10,32px);grid-template-rows:22px repeat(10,32px);gap:2px}
+  .lbl{display:flex;align-items:center;justify-content:center;font-size:12px;opacity:.7}
+  .cell{background:var(--water);border-radius:3px;position:relative;display:flex;align-items:center;justify-content:center;font-weight:700;user-select:none}
+  .cell.ship{background:var(--ship)}
+  .cell.preview{background:#4caf50aa}
+  .cell.preview.bad{background:#e5484daa}
+  .cell.miss::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--miss)}
+  .cell.hit{background:var(--hit)}
+  .cell.hit::after{content:"✕";color:#fff;font-size:18px}
+  .cell.sunk{background:var(--sunk)}
+  #enemy.active .cell:not(.hit):not(.miss){cursor:crosshair}
+  #enemy.active .cell:not(.hit):not(.miss):hover{background:var(--water2);outline:2px solid var(--accent)}
+  #player.placing .cell{cursor:pointer}
+  .controls{margin:14px 0;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  button{background:var(--accent);color:#1a1a1a;border:0;border-radius:6px;padding:8px 16px;font-size:15px;font-weight:600;cursor:pointer}
+  button:disabled{opacity:.4;cursor:default}
+  button.secondary{background:#3b5b85;color:var(--txt)}
+  .fleet{margin-top:10px;font-size:13px;display:flex;flex-direction:column;gap:3px}
+  .fleet span.gone{text-decoration:line-through;opacity:.45}
+  .fleet .cur{color:var(--accent);font-weight:700}
+  #log{width:min(720px,100%);max-height:140px;overflow:auto;background:var(--panel);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.5}
+  .hint{font-size:13px;opacity:.75;margin-bottom:6px;text-align:center}
+</style>
+</head>
+<body>
+<h1>BATTLESHIP</h1>
+<div id="status"></div>
+<div class="hint" id="hint">Place your fleet: click on your grid to place the highlighted ship. Press <b>R</b> or "Rotate" to switch orientation.</div>
+<div class="controls">
+  <button id="rotate" class="secondary">Rotate (horizontal)</button>
+  <button id="random" class="secondary">Random placement</button>
+  <button id="reset" class="secondary">Clear</button>
+  <button id="start" disabled>Start battle</button>
+  <button id="again" style="display:none">Play again</button>
+</div>
+<div class="boards">
+  <div class="board-wrap"><h2>Your fleet</h2><div id="player" class="grid placing"></div><div class="fleet" id="pfleet"></div></div>
+  <div class="board-wrap"><h2>Enemy waters</h2><div id="enemy" class="grid"></div><div class="fleet" id="efleet"></div></div>
+</div>
+<div style="height:14px"></div>
+<div id="log"></div>
+
+<script>
+const N = 10, COLS = "ABCDEFGHIJ";
+const FLEET = [["Carrier",5],["Battleship",4],["Cruiser",3],["Submarine",3],["Destroyer",2]];
+const $ = id => document.getElementById(id);
+const name = (r,c) => COLS[c] + (r+1);
+
+let state;
+
+function newBoard(){
+  return {cells: Array.from({length:N},()=>Array(N).fill(null)), shots: Array.from({length:N},()=>Array(N).fill(0)), ships: []};
+}
+function canPlace(b,r,c,len,horiz){
+  for(let i=0;i<len;i++){
+    const rr = r + (horiz?0:i), cc = c + (horiz?i:0);
+    if(rr<0||rr>=N||cc<0||cc>=N||b.cells[rr][cc]!==null) return false;
+  }
+  return true;
+}
+function place(b,r,c,len,horiz,nm){
+  const ship = {name:nm,len,cells:[],hits:0};
+  for(let i=0;i<len;i++){
+    const rr = r + (horiz?0:i), cc = c + (horiz?i:0);
+    b.cells[rr][cc] = b.ships.length; ship.cells.push([rr,cc]);
+  }
+  b.ships.push(ship);
+}
+function randomFleet(b){
+  for(const [nm,len] of FLEET){
+    let ok=false;
+    while(!ok){
+      const h = Math.random()<.5, r = Math.floor(Math.random()*N), c = Math.floor(Math.random()*N);
+      if(canPlace(b,r,c,len,h)){ place(b,r,c,len,h,nm); ok=true; }
+    }
+  }
+}
+
+function buildGrid(el, onClick, onHover){
+  el.innerHTML = "";
+  el.appendChild(Object.assign(document.createElement("div"),{className:"lbl"}));
+  for(let c=0;c<N;c++) el.appendChild(Object.assign(document.createElement("div"),{className:"lbl",textContent:COLS[c]}));
+  for(let r=0;r<N;r++){
+    el.appendChild(Object.assign(document.createElement("div"),{className:"lbl",textContent:r+1}));
+    for(let c=0;c<N;c++){
+      const d = document.createElement("div");
+      d.className="cell"; d.dataset.r=r; d.dataset.c=c;
+      if(onClick) d.addEventListener("click",()=>onClick(r,c));
+      if(onHover){ d.addEventListener("mouseenter",()=>onHover(r,c)); }
+      el.appendChild(d);
+    }
+  }
+  if(onHover) el.addEventListener("mouseleave",()=>onHover(-1,-1));
+}
+const cellEl = (el,r,c) => el.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+
+function render(){
+  const P=$("player"), E=$("enemy");
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    const pc = cellEl(P,r,c), ec = cellEl(E,r,c);
+    const pi = state.player.cells[r][c], ps = state.player.shots[r][c];
+    pc.className = "cell" + (pi!==null?" ship":"") + (ps===1?" miss":"") + (ps===2?" hit":"");
+    if(ps===2 && state.player.ships[pi].hits===state.player.ships[pi].len) pc.classList.add("sunk");
+    const ei = state.enemy.cells[r][c], es = state.enemy.shots[r][c];
+    ec.className = "cell" + (es===1?" miss":"") + (es===2?" hit":"");
+    if(es===2 && state.enemy.ships[ei].hits===state.enemy.ships[ei].len) ec.classList.add("sunk");
+    if(state.phase==="over" && ei!==null && es===0) ec.classList.add("ship");
+  }
+  E.classList.toggle("active", state.phase==="battle" && state.turn==="player");
+  P.classList.toggle("placing", state.phase==="placing");
+  renderFleet($("pfleet"), state.player, state.phase==="placing");
+  renderFleet($("efleet"), state.enemy, false);
+  $("start").disabled = !(state.phase==="placing" && state.player.ships.length===FLEET.length);
+  ["rotate","random","reset","start"].forEach(id=>$(id).style.display = state.phase==="placing"?"":"none");
+  $("again").style.display = state.phase==="over"?"":"none";
+  $("hint").style.display = state.phase==="placing"?"":"none";
+  $("rotate").textContent = "Rotate (" + (state.horiz?"horizontal":"vertical") + ")";
+}
+function renderFleet(el,b,placing){
+  el.innerHTML = FLEET.map(([nm,len],i)=>{
+    const s = b.ships.find(x=>x.name===nm);
+    const gone = s && s.hits===s.len;
+    const cur = placing && i===b.ships.length;
+    return `<span class="${gone?"gone":""} ${cur?"cur":""}">${cur?"▶ ":""}${nm} (${len})${placing&&s?" ✓":""}</span>`;
+  }).join("");
+}
+function setStatus(t){ $("status").textContent=t; }
+function log(t){ const d=document.createElement("div"); d.textContent=t; $("log").prepend(d); }
+
+function hoverPlace(r,c){
+  if(state.phase!=="placing") return;
+  const P=$("player");
+  P.querySelectorAll(".preview").forEach(x=>x.classList.remove("preview","bad"));
+  if(r<0 || state.player.ships.length>=FLEET.length) return;
+  const len = FLEET[state.player.ships.length][1];
+  const ok = canPlace(state.player,r,c,len,state.horiz);
+  for(let i=0;i<len;i++){
+    const rr = r+(state.horiz?0:i), cc = c+(state.horiz?i:0);
+    if(rr<N&&cc<N){ const e=cellEl(P,rr,cc); e.classList.add("preview"); if(!ok) e.classList.add("bad"); }
+  }
+  state.hover=[r,c];
+}
+function clickPlace(r,c){
+  if(state.phase!=="placing" || state.player.ships.length>=FLEET.length) return;
+  const [nm,len] = FLEET[state.player.ships.length];
+  if(!canPlace(state.player,r,c,len,state.horiz)) return;
+  place(state.player,r,c,len,state.horiz,nm);
+  render(); hoverPlace(r,c);
+  setStatus(state.player.ships.length===FLEET.length ? "Fleet ready! Press Start battle." : `Place your ${FLEET[state.player.ships.length][0]} (${FLEET[state.player.ships.length][1]}).`);
+}
+
+function fire(b,r,c){
+  const i = b.cells[r][c];
+  if(i===null){ b.shots[r][c]=1; return {result:"miss"}; }
+  b.shots[r][c]=2; const s=b.ships[i]; s.hits++;
+  return s.hits===s.len ? {result:"sunk",ship:s} : {result:"hit",ship:s};
+}
+const allSunk = b => b.ships.every(s=>s.hits===s.len);
+
+function playerFire(r,c){
+  if(state.phase!=="battle"||state.turn!=="player"||state.enemy.shots[r][c]) return;
+  const res = fire(state.enemy,r,c);
+  log(`You fire at ${name(r,c)}: ${res.result==="miss"?"miss.":res.result==="hit"?"HIT!":"HIT and SUNK the enemy "+res.ship.name+"!"}`);
+  if(allSunk(state.enemy)){ state.phase="over"; render(); setStatus("Victory! You sank the entire enemy fleet."); log("You win!"); return; }
+  state.turn="ai"; render();
+  setStatus(res.result==="miss"?"Miss. Enemy is aiming...":res.result==="hit"?"Hit! Enemy is aiming...":`You sank their ${res.ship.name}! Enemy is aiming...`);
+  setTimeout(aiTurn, 650);
+}
+
+// AI: hunt with checkerboard parity, then target adjacent cells after a hit, following the line.
+function aiPick(){
+  const b = state.player, sh = b.shots;
+  const open = (r,c)=> r>=0&&r<N&&c>=0&&c<N&&sh[r][c]===0;
+  // unresolved hits = hits on ships not yet sunk
+  const hits=[];
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    if(sh[r][c]===2){ const s=b.ships[b.cells[r][c]]; if(s.hits<s.len) hits.push([r,c]); }
+  }
+  if(hits.length){
+    // try to extend lines of 2+ adjacent hits
+    const cands=[];
+    for(const [r,c] of hits){
+      for(const [dr,dc] of [[0,1],[1,0]]){
+        if(hits.some(([a,bb])=>a===r+dr&&bb===c+dc)){
+          let rr=r,cc=c; while(sh[rr]&&sh[rr][cc]===2&&hits.some(([a,bb])=>a===rr&&bb===cc)){rr-=dr;cc-=dc;}
+          if(open(rr,cc)) cands.push([rr,cc]);
+          rr=r;cc=c; while(sh[rr]&&sh[rr][cc]===2&&hits.some(([a,bb])=>a===rr&&bb===cc)){rr+=dr;cc+=dc;}
+          if(open(rr,cc)) cands.push([rr,cc]);
+        }
+      }
+    }
+    if(cands.length) return cands[Math.floor(Math.random()*cands.length)];
+    const adj=[];
+    for(const [r,c] of hits) for(const [dr,dc] of [[0,1],[1,0],[0,-1],[-1,0]]) if(open(r+dr,c+dc)) adj.push([r+dr,c+dc]);
+    if(adj.length) return adj[Math.floor(Math.random()*adj.length)];
+  }
+  // hunt: score cells by how many remaining ships could fit through them
+  const remaining = b.ships.filter(s=>s.hits<s.len).map(s=>s.len);
+  const score = Array.from({length:N},()=>Array(N).fill(0));
+  for(const len of remaining) for(let r=0;r<N;r++) for(let c=0;c<N;c++) for(const h of [true,false]){
+    let ok=true; for(let i=0;i<len;i++){ const rr=r+(h?0:i), cc=c+(h?i:0); if(!open(rr,cc)){ok=false;break;} }
+    if(ok) for(let i=0;i<len;i++) score[r+(h?0:i)][c+(h?i:0)]++;
+  }
+  let best=-1, picks=[];
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++) if(open(r,c)){
+    const s = score[r][c] + Math.random()*0.5;
+    if(s>best){best=s;picks=[[r,c]];}
+  }
+  return picks[0];
+}
+function aiTurn(){
+  if(state.phase!=="battle") return;
+  const [r,c] = aiPick();
+  const res = fire(state.player,r,c);
+  log(`Enemy fires at ${name(r,c)}: ${res.result==="miss"?"miss.":res.result==="hit"?"HIT your "+res.ship.name+"!":"SUNK your "+res.ship.name+"!"}`);
+  if(allSunk(state.player)){ state.phase="over"; render(); setStatus("Defeat! The enemy sank your entire fleet."); log("Enemy wins."); return; }
+  state.turn="player"; render();
+  setStatus(`Enemy ${res.result==="miss"?"missed at":res.result==="hit"?"hit you at":"sank your "+res.ship.name+" at"} ${name(r,c)}. Your turn — fire!`);
+}
+
+function init(){
+  state = {phase:"placing", turn:"player", horiz:true, player:newBoard(), enemy:newBoard(), hover:null};
+  randomFleet(state.enemy);
+  buildGrid($("player"), clickPlace, hoverPlace);
+  buildGrid($("enemy"), playerFire);
+  $("log").innerHTML="";
+  setStatus(`Place your ${FLEET[0][0]} (${FLEET[0][1]}).`);
+  render();
+}
+function rotate(){ state.horiz=!state.horiz; render(); if(state.hover) hoverPlace(...state.hover); }
+
+$("rotate").onclick = rotate;
+document.addEventListener("keydown",e=>{ if((e.key==="r"||e.key==="R") && state.phase==="placing") rotate(); });
+$("random").onclick = ()=>{ state.player=newBoard(); randomFleet(state.player); render(); setStatus("Fleet ready! Press Start battle."); };
+$("reset").onclick = ()=>{ state.player=newBoard(); render(); setStatus(`Place your ${FLEET[0][0]} (${FLEET[0][1]}).`); };
+$("start").onclick = ()=>{ state.phase="battle"; state.turn="player"; render(); setStatus("Battle started! Click a cell in Enemy waters to fire."); log("Battle started."); };
+$("again").onclick = init;
+init();
+</script>
+</body>
+</html>
