@@ -2,7 +2,7 @@
 
 Cognition ejemplo
 
-A single-page Battleship game you play in the browser against the computer. Everything (HTML, CSS and JavaScript) lives in [`battleship.html`](battleship.html), with no dependencies or build step.
+A single-page Battleship game you play in the browser against the computer. Everything (HTML, CSS and JavaScript) lives in [`battleship.html`](battleship.html), with no build step. The game itself has no dependencies; the stock box at the bottom loads a [TradingView](https://www.tradingview.com/) widget and needs an internet connection.
 
 ## How to play
 
@@ -25,6 +25,8 @@ A single-page Battleship game you play in the browser against the computer. Ever
 | Dark red ✕ | Part of a sunk ship |
 
 Sunk ships are crossed out in the fleet list under each grid, and every shot is recorded in the log at the bottom.
+
+Below the log, a **Magnificent 7 — live** box shows live quotes for the "Magnificent 7" tech stocks: NVIDIA, Microsoft, Apple, Alphabet, Amazon, Meta and Tesla. To change the list, edit the `symbols` array in the TradingView widget at the bottom of `battleship.html`.
 
 ## Rules
 
