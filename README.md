@@ -37,7 +37,7 @@ A news-style ticker banner fixed to the bottom of the screen scrolls live quotes
   | --- | --- |
   | Trajinera | 5 |
   | Lancha | 4 |
-  | Pecero | 3 |
+  | Pesero | 3 |
   | Camión | 3 |
   | Bicitaxi | 2 |
 
