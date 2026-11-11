@@ -2,7 +2,7 @@
 
 Cognition ejemplo
 
-A single-page Battleship game you play in the browser against the computer. Everything (HTML, CSS and JavaScript) lives in [`battleship.html`](battleship.html), with no build step. The game itself has no dependencies; the stock ticker at the bottom loads a [TradingView](https://www.tradingview.com/) widget and needs an internet connection.
+A single-page Battleship game you play in the browser against the computer, with a Mexican theme: flag colours, *rosa mexicano* and marigold accents, a Talavera-tile background and a *papel picado* banner ("¡Batalla Naval!"). Everything (HTML, CSS and JavaScript) lives in [`battleship.html`](battleship.html), with no build step. The game itself has no dependencies; the stock ticker at the bottom loads a [TradingView](https://www.tradingview.com/) widget and needs an internet connection.
 
 ## How to play
 
