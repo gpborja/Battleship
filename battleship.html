@@ -5,20 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Battleship</title>
 <style>
-  :root{--bg:#0b1d33;--panel:#12294a;--water:#1d4e89;--water2:#2563a8;--ship:#8a99ad;--hit:#e5484d;--miss:#cfe3ff;--sunk:#7a1f22;--txt:#e8f0fb;--accent:#f5b83d}
+  :root{--bg:#0f2a5c;--panel:#0b1f45e6;--water:#0b7f8c;--water2:#12a3b2;--ship:#c8693a;--hit:#ce1126;--miss:#ffffff;--sunk:#6b0d1a;--txt:#fff8ec;--accent:#f7a800;--rosa:#e4007c;--verde:#006847;--rojo:#ce1126}
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:16px}
-  h1{margin:4px 0 2px;letter-spacing:4px}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--txt);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:0 16px 64px;
+    background:radial-gradient(circle,#ffffff14 0 5px,transparent 6px) 0 0/48px 48px,radial-gradient(circle,#f7a80018 0 3px,transparent 4px) 24px 24px/48px 48px,conic-gradient(from 45deg,#13336e 25%,var(--bg) 0 50%,#13336e 0 75%,var(--bg) 0) 0 0/48px 48px;background-color:var(--bg)}
+  #papel{width:calc(100% + 32px);display:flex;gap:6px;padding:0 8px;border-top:3px solid #3b2a1a;margin-bottom:6px}
+  #papel span{flex:1;height:44px;max-width:70px;clip-path:polygon(0 0,100% 0,100% 82%,87.5% 100%,75% 82%,62.5% 100%,50% 82%,37.5% 100%,25% 82%,12.5% 100%,0 82%);
+    -webkit-mask:radial-gradient(circle,transparent 0 3px,#000 4px) 0 0/12px 12px;mask:radial-gradient(circle,transparent 0 3px,#000 4px) 0 0/12px 12px}
+  #papel span:nth-child(6n+1){background:var(--rosa)}#papel span:nth-child(6n+2){background:var(--accent)}#papel span:nth-child(6n+3){background:var(--verde)}
+  #papel span:nth-child(6n+4){background:#00a6d6}#papel span:nth-child(6n+5){background:var(--rojo)}#papel span:nth-child(6n){background:#8e44ad}
+  h1{margin:4px 0 0;letter-spacing:6px;font-size:38px;background:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:1px #ffffff55;filter:drop-shadow(0 2px 2px #0008)}
+  .subtitle{font-family:"Brush Script MT","Segoe Script",cursive;font-size:26px;color:var(--accent);margin-top:-2px}
   #status{min-height:28px;margin:8px 0 12px;font-size:18px;color:var(--accent);text-align:center}
   .boards{display:flex;gap:32px;flex-wrap:wrap;justify-content:center}
-  .board-wrap{background:var(--panel);padding:12px 14px 14px;border-radius:10px}
-  .board-wrap h2{margin:0 0 8px;font-size:16px;text-align:center;font-weight:600}
+  .board-wrap{background:var(--panel);padding:12px 14px 14px;border-radius:10px;border:3px solid transparent;background-clip:padding-box;box-shadow:0 0 0 3px var(--accent),0 6px 18px #0009;position:relative}
+  .board-wrap::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;border-radius:7px 7px 0 0;background:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%)}
+  .board-wrap h2{margin:4px 0 8px;font-size:16px;text-align:center;font-weight:700;color:var(--accent)}
   .grid{display:grid;grid-template-columns:22px repeat(10,32px);grid-template-rows:22px repeat(10,32px);gap:2px}
-  .lbl{display:flex;align-items:center;justify-content:center;font-size:12px;opacity:.7}
+  .lbl{display:flex;align-items:center;justify-content:center;font-size:12px;opacity:.8}
   .cell{background:var(--water);border-radius:3px;position:relative;display:flex;align-items:center;justify-content:center;font-weight:700;user-select:none}
-  .cell.ship{background:var(--ship)}
-  .cell.preview{background:#4caf50aa}
-  .cell.preview.bad{background:#e5484daa}
+  .cell.ship{background:var(--ship);box-shadow:inset 0 0 0 2px #ffffff30}
+  .cell.preview{background:#00a86baa}
+  .cell.preview.bad{background:#ce1126aa}
   .cell.miss::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--miss)}
   .cell.hit{background:var(--hit)}
   .cell.hit::after{content:"✕";color:#fff;font-size:18px}
@@ -27,22 +35,23 @@
   #enemy.active .cell:not(.hit):not(.miss):hover{background:var(--water2);outline:2px solid var(--accent)}
   #player.placing .cell{cursor:pointer}
   .controls{margin:14px 0;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-  button{background:var(--accent);color:#1a1a1a;border:0;border-radius:6px;padding:8px 16px;font-size:15px;font-weight:600;cursor:pointer}
+  button{background:var(--accent);color:#1a1a1a;border:0;border-radius:6px;padding:8px 16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 #0006}
   button:disabled{opacity:.4;cursor:default}
-  button.secondary{background:#3b5b85;color:var(--txt)}
+  button.secondary{background:var(--rosa);color:#fff}
   .fleet{margin-top:10px;font-size:13px;display:flex;flex-direction:column;gap:3px}
   .fleet span.gone{text-decoration:line-through;opacity:.45}
   .fleet .cur{color:var(--accent);font-weight:700}
-  #log{width:min(720px,100%);max-height:140px;overflow:auto;background:var(--panel);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.5}
-  .hint{font-size:13px;opacity:.75;margin-bottom:6px;text-align:center}
-  body{padding-bottom:80px}
-  #stocks{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;align-items:center;background:#07152a;border-top:2px solid var(--accent)}
-  #stocks .tag{flex:none;padding:0 12px;font-size:12px;font-weight:700;letter-spacing:1px;color:#1a1a1a;background:var(--accent);align-self:stretch;display:flex;align-items:center}
+  #log{width:min(720px,100%);max-height:140px;overflow:auto;background:var(--panel);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.5;border-left:4px solid var(--rosa)}
+  .hint{font-size:13px;opacity:.85;margin-bottom:6px;text-align:center}
+  #stocks{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;align-items:center;background:#0a1a3a;border-top:3px solid;border-image:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%) 1}
+  #stocks .tag{flex:none;padding:0 12px;font-size:12px;font-weight:700;letter-spacing:1px;color:#fff;background:var(--rosa);align-self:stretch;display:flex;align-items:center}
   #stocks .tradingview-widget-container{flex:1;min-width:0}
 </style>
 </head>
 <body>
+<div id="papel" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 <h1>BATTLESHIP</h1>
+<div class="subtitle">✦ ¡Batalla Naval! ✦</div>
 <div id="status"></div>
 <div class="hint" id="hint">Place your fleet: click on your grid to place the highlighted ship. Press <b>R</b> or "Rotate" to switch orientation.</div>
 <div class="controls">
@@ -85,7 +94,7 @@
 
 <script>
 const N = 10, COLS = "ABCDEFGHIJ";
-const FLEET = [["Carrier",5],["Battleship",4],["Cruiser",3],["Submarine",3],["Destroyer",2]];
+const FLEET = [["Trajinera",5],["Lancha",4],["Pesero",3],["Camión",3],["Bicitaxi",2]];
 const $ = id => document.getElementById(id);
 const name = (r,c) => COLS[c] + (r+1);
 

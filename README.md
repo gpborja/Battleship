@@ -2,7 +2,7 @@
 
 Cognition ejemplo
 
-A single-page Battleship game you play in the browser against the computer. Everything (HTML, CSS and JavaScript) lives in [`battleship.html`](battleship.html), with no build step. The game itself has no dependencies; the stock ticker at the bottom loads a [TradingView](https://www.tradingview.com/) widget and needs an internet connection.
+A single-page Battleship game you play in the browser against the computer, with a Mexican theme: flag colours, *rosa mexicano* and marigold accents, a Talavera-tile background and a *papel picado* banner ("¡Batalla Naval!"). Everything (HTML, CSS and JavaScript) lives in [`battleship.html`](battleship.html), with no build step. The game itself has no dependencies; the stock ticker at the bottom loads a [TradingView](https://www.tradingview.com/) widget and needs an internet connection.
 
 ## How to play
 
@@ -31,15 +31,15 @@ A news-style ticker banner fixed to the bottom of the screen scrolls live quotes
 ## Rules
 
 - 10×10 grid, columns **A–J** and rows **1–10**.
-- Each side has the classic fleet of 5 ships (17 cells in total):
+- Each side has a fleet of 5 "ships" named after Mexican local transport (17 cells in total):
 
   | Ship | Size |
   | --- | --- |
-  | Carrier | 5 |
-  | Battleship | 4 |
-  | Cruiser | 3 |
-  | Submarine | 3 |
-  | Destroyer | 2 |
+  | Trajinera | 5 |
+  | Lancha | 4 |
+  | Pesero | 3 |
+  | Camión | 3 |
+  | Bicitaxi | 2 |
 
 - Ships are placed horizontally or vertically and cannot overlap.
 - You always fire first; turns then alternate one shot each.
