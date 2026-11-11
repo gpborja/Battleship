@@ -35,6 +35,10 @@
   .fleet .cur{color:var(--accent);font-weight:700}
   #log{width:min(720px,100%);max-height:140px;overflow:auto;background:var(--panel);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.5}
   .hint{font-size:13px;opacity:.75;margin-bottom:6px;text-align:center}
+  body{padding-bottom:80px}
+  #stocks{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;align-items:center;background:#07152a;border-top:2px solid var(--accent)}
+  #stocks .tag{flex:none;padding:0 12px;font-size:12px;font-weight:700;letter-spacing:1px;color:#1a1a1a;background:var(--accent);align-self:stretch;display:flex;align-items:center}
+  #stocks .tradingview-widget-container{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -54,6 +58,30 @@
 </div>
 <div style="height:14px"></div>
 <div id="log"></div>
+<div id="stocks">
+  <div class="tag">MAGNIFICENT 7</div>
+  <div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+      "symbols": [
+        {"proName": "NASDAQ:AAPL", "title": "Apple"},
+        {"proName": "NASDAQ:MSFT", "title": "Microsoft"},
+        {"proName": "NASDAQ:GOOGL", "title": "Alphabet"},
+        {"proName": "NASDAQ:AMZN", "title": "Amazon"},
+        {"proName": "NASDAQ:NVDA", "title": "NVIDIA"},
+        {"proName": "NASDAQ:META", "title": "Meta"},
+        {"proName": "NASDAQ:TSLA", "title": "Tesla"}
+      ],
+      "showSymbolLogo": true,
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "colorTheme": "dark",
+      "locale": "en"
+    }
+    </script>
+  </div>
+</div>
 
 <script>
 const N = 10, COLS = "ABCDEFGHIJ";
@@ -250,6 +278,7 @@ $("random").onclick = ()=>{ state.player=newBoard(); randomFleet(state.player); 
 $("reset").onclick = ()=>{ state.player=newBoard(); render(); setStatus(`Place your ${FLEET[0][0]} (${FLEET[0][1]}).`); };
 $("start").onclick = ()=>{ state.phase="battle"; state.turn="player"; render(); setStatus("Battle started! Click a cell in Enemy waters to fire."); log("Battle started."); };
 $("again").onclick = init;
+new ResizeObserver(()=>document.body.style.paddingBottom = $("stocks").offsetHeight + 16 + "px").observe($("stocks"));
 init();
 </script>
 </body>
