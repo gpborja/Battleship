@@ -31,15 +31,15 @@ A news-style ticker banner fixed to the bottom of the screen scrolls live quotes
 ## Rules
 
 - 10×10 grid, columns **A–J** and rows **1–10**.
-- Each side has the classic fleet of 5 ships (17 cells in total):
+- Each side has a fleet of 5 "ships" named after Mexican local transport (17 cells in total):
 
   | Ship | Size |
   | --- | --- |
-  | Carrier | 5 |
-  | Battleship | 4 |
-  | Cruiser | 3 |
-  | Submarine | 3 |
-  | Destroyer | 2 |
+  | Trajinera | 5 |
+  | Lancha | 4 |
+  | Pecero | 3 |
+  | Camión | 3 |
+  | Bicitaxi | 2 |
 
 - Ships are placed horizontally or vertically and cannot overlap.
 - You always fire first; turns then alternate one shot each.
