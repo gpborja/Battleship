@@ -287,6 +287,7 @@ $("random").onclick = ()=>{ state.player=newBoard(); randomFleet(state.player); 
 $("reset").onclick = ()=>{ state.player=newBoard(); render(); setStatus(`Place your ${FLEET[0][0]} (${FLEET[0][1]}).`); };
 $("start").onclick = ()=>{ state.phase="battle"; state.turn="player"; render(); setStatus("Battle started! Click a cell in Enemy waters to fire."); log("Battle started."); };
 $("again").onclick = init;
+new ResizeObserver(()=>document.body.style.paddingBottom = $("stocks").offsetHeight + 16 + "px").observe($("stocks"));
 init();
 </script>
 </body>
