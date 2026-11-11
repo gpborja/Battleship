@@ -35,9 +35,10 @@
   .fleet .cur{color:var(--accent);font-weight:700}
   #log{width:min(720px,100%);max-height:140px;overflow:auto;background:var(--panel);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.5}
   .hint{font-size:13px;opacity:.75;margin-bottom:6px;text-align:center}
-  #stocks{width:min(720px,100%);margin-top:14px;background:var(--panel);border-radius:8px;padding:8px 12px 10px}
-  #stocks h2{margin:0 0 4px;font-size:14px;font-weight:600;opacity:.85}
-  #stocks .note{font-size:11px;opacity:.6;margin-top:4px}
+  body{padding-bottom:64px}
+  #stocks{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;align-items:center;background:#07152a;border-top:2px solid var(--accent)}
+  #stocks .tag{flex:none;padding:0 12px;font-size:12px;font-weight:700;letter-spacing:1px;color:#1a1a1a;background:var(--accent);align-self:stretch;display:flex;align-items:center}
+  #stocks .tradingview-widget-container{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -58,35 +59,28 @@
 <div style="height:14px"></div>
 <div id="log"></div>
 <div id="stocks">
-  <h2>Magnificent 7 &mdash; live</h2>
+  <div class="tag">MAGNIFICENT 7</div>
   <div class="tradingview-widget-container">
     <div class="tradingview-widget-container__widget"></div>
-    <script src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+    <script src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
     {
-      "width": "100%",
-      "height": 320,
-      "symbolsGroups": [
-        {
-          "name": "IT",
-          "symbols": [
-            {"name": "NASDAQ:NVDA", "displayName": "NVIDIA"},
-            {"name": "NASDAQ:MSFT", "displayName": "Microsoft"},
-            {"name": "NASDAQ:AAPL", "displayName": "Apple"},
-            {"name": "NASDAQ:GOOGL", "displayName": "Alphabet"},
-            {"name": "NASDAQ:AMZN", "displayName": "Amazon"},
-            {"name": "NASDAQ:META", "displayName": "Meta"},
-            {"name": "NASDAQ:TSLA", "displayName": "Tesla"}
-          ]
-        }
+      "symbols": [
+        {"proName": "NASDAQ:AAPL", "title": "Apple"},
+        {"proName": "NASDAQ:MSFT", "title": "Microsoft"},
+        {"proName": "NASDAQ:GOOGL", "title": "Alphabet"},
+        {"proName": "NASDAQ:AMZN", "title": "Amazon"},
+        {"proName": "NASDAQ:NVDA", "title": "NVIDIA"},
+        {"proName": "NASDAQ:META", "title": "Meta"},
+        {"proName": "NASDAQ:TSLA", "title": "Tesla"}
       ],
       "showSymbolLogo": true,
       "isTransparent": true,
+      "displayMode": "adaptive",
       "colorTheme": "dark",
       "locale": "en"
     }
     </script>
   </div>
-  <div class="note">Quotes by <a href="https://www.tradingview.com/" target="_blank" rel="noopener" style="color:inherit">TradingView</a>; requires an internet connection and may be delayed.</div>
 </div>
 
 <script>
