@@ -2,18 +2,18 @@
 
 Cognition ejemplo
 
-A single-page Battleship game you play in the browser against the computer, with a Mexican theme: flag colours, *rosa mexicano* and marigold accents, a Talavera-tile background and a *papel picado* banner ("¡Batalla Naval!"). Everything (HTML, CSS and JavaScript) lives in [`battleship.html`](battleship.html), with no build step. The game itself has no dependencies; the stock ticker at the bottom loads a [TradingView](https://www.tradingview.com/) widget and needs an internet connection.
+A single-page Battleship game you play in the browser against the computer, with a Mexican theme: flag colours, *rosa mexicano* and marigold accents, a Talavera-tile background and a *papel picado* banner. The whole interface is in Spanish ("BATALLA NAVAL — ¡Hunde la flota enemiga!"): buttons, status messages, the game log and the end-of-game announcement. Everything (HTML, CSS and JavaScript) lives in [`battleship.html`](battleship.html), with no build step. The game itself has no dependencies; the stock ticker at the bottom loads a [TradingView](https://www.tradingview.com/) widget and needs an internet connection.
 
 ## How to play
 
 1. Open `battleship.html` in any modern browser (double-click the file, or serve the folder with e.g. `python3 -m http.server` and open `http://localhost:8000/battleship.html`).
-2. **Place your fleet** on the *Your fleet* grid:
+2. **Place your fleet** on the *Tu flota* (your fleet) grid:
    - Click a cell to place the highlighted ship. A green preview means the spot is valid, red means it is not.
-   - Press **R** or the **Rotate** button to switch between horizontal and vertical.
-   - **Random placement** places the whole fleet for you; **Clear** removes it.
-3. Press **Start battle**.
-4. Click a cell in *Enemy waters* to fire. The computer fires back after each of your shots.
-5. The first side to sink the entire enemy fleet wins. Press **Play again** to start over.
+   - Press **R** or the **Girar** (rotate) button to switch between horizontal and vertical.
+   - **Colocación aleatoria** (random placement) places the whole fleet for you; **Borrar** (clear) removes it.
+3. Press **Iniciar batalla** (start battle).
+4. Click a cell in *Aguas enemigas* (enemy waters) to fire. The computer fires back after each of your shots.
+5. The first side to sink the entire enemy fleet wins. A pop-up announces the result: **¡GANASTE! ¡Eres el GANADOR!** (you won) or **¡PERDISTE! ¡Eres el PERDEDOR!** (you lost). Press **Jugar de nuevo** (play again) to start over, or **Ver tableros** (view boards, or Esc) to close it and look at the final boards.
 
 ### Board legend
 
@@ -26,7 +26,7 @@ A single-page Battleship game you play in the browser against the computer, with
 
 Sunk ships are crossed out in the fleet list under each grid, and every shot is recorded in the log at the bottom.
 
-A news-style ticker banner fixed to the bottom of the screen scrolls live quotes for the "Magnificent 7" tech stocks: NVIDIA, Microsoft, Apple, Alphabet, Amazon, Meta and Tesla. To change the list, edit the `symbols` array in the TradingView widget at the bottom of `battleship.html`. Quotes come from TradingView and may be delayed.
+A news-style ticker banner fixed to the bottom of the screen (labelled "LOS 7 MAGNÍFICOS", with the widget in Spanish) scrolls live quotes for the "Magnificent 7" tech stocks: NVIDIA, Microsoft, Apple, Alphabet, Amazon, Meta and Tesla. To change the list, edit the `symbols` array in the TradingView widget at the bottom of `battleship.html`. Quotes come from TradingView and may be delayed.
 
 ## Rules
 
@@ -56,7 +56,7 @@ It typically sinks a whole fleet in about 40–50 shots, so it is a tough oppone
 
 ## Testing
 
-The game was verified with automated browser tests (Playwright driving real clicks on the page) across 300 full games, with 0 errors. Placement was done both manually (with rotation) and with **Random placement**, and games were restarted with **Play again**. After every game the tests checked:
+The game was verified with automated browser tests (Playwright driving real clicks on the page) across 300 full games, with 0 errors. Placement was done both manually (with rotation) and with **Colocación aleatoria**, and games were restarted with **Jugar de nuevo**. After every game the tests checked:
 
 - no JavaScript errors;
 - each fleet has 5 straight, non-overlapping ships covering 17 cells;

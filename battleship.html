@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Battleship</title>
+<title>Batalla Naval</title>
 <style>
   :root{--bg:#0f2a5c;--panel:#0b1f45e6;--water:#0b7f8c;--water2:#12a3b2;--ship:#c8693a;--hit:#ce1126;--miss:#ffffff;--sunk:#6b0d1a;--txt:#fff8ec;--accent:#f7a800;--rosa:#e4007c;--verde:#006847;--rojo:#ce1126}
   *{box-sizing:border-box}
@@ -46,29 +46,54 @@
   #stocks{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;align-items:center;background:#0a1a3a;border-top:3px solid;border-image:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%) 1}
   #stocks .tag{flex:none;padding:0 12px;font-size:12px;font-weight:700;letter-spacing:1px;color:#fff;background:var(--rosa);align-self:stretch;display:flex;align-items:center}
   #stocks .tradingview-widget-container{flex:1;min-width:0}
+  #result{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:#000b;padding:16px}
+  #result.show{display:flex}
+  #result .card{position:relative;max-width:440px;width:100%;text-align:center;background:var(--panel);border-radius:14px;padding:30px 24px 22px;box-shadow:0 0 0 4px var(--accent),0 12px 40px #000c;animation:pop .35s ease-out}
+  #result .card::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;border-radius:12px 12px 0 0;background:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%)}
+  #result .icon{font-size:56px;line-height:1}
+  #result .big{margin:10px 0 4px;font-size:40px;font-weight:800;letter-spacing:2px}
+  #result .who{font-size:22px;font-weight:700;margin-bottom:8px}
+  #result .why{font-size:15px;opacity:.9;margin-bottom:18px}
+  #result.win .big{color:var(--accent)}
+  #result.lose .big{color:#ff4d6a}
+  #result .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  @media (max-width:480px){h1{font-size:28px;letter-spacing:3px}}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 </style>
 </head>
 <body>
 <div id="papel" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-<h1>BATTLESHIP</h1>
-<div class="subtitle">✦ ¡Batalla Naval! ✦</div>
+<h1>BATALLA NAVAL</h1>
+<div class="subtitle">✦ ¡Hunde la flota enemiga! ✦</div>
 <div id="status"></div>
-<div class="hint" id="hint">Place your fleet: click on your grid to place the highlighted ship. Press <b>R</b> or "Rotate" to switch orientation.</div>
+<div class="hint" id="hint">Coloca tu flota: haz clic en tu tablero para colocar el barco resaltado. Presiona <b>R</b> o «Girar» para cambiar la orientación.</div>
 <div class="controls">
-  <button id="rotate" class="secondary">Rotate (horizontal)</button>
-  <button id="random" class="secondary">Random placement</button>
-  <button id="reset" class="secondary">Clear</button>
-  <button id="start" disabled>Start battle</button>
-  <button id="again" style="display:none">Play again</button>
+  <button id="rotate" class="secondary">Girar (horizontal)</button>
+  <button id="random" class="secondary">Colocación aleatoria</button>
+  <button id="reset" class="secondary">Borrar</button>
+  <button id="start" disabled>Iniciar batalla</button>
+  <button id="again" style="display:none">Jugar de nuevo</button>
 </div>
 <div class="boards">
-  <div class="board-wrap"><h2>Your fleet</h2><div id="player" class="grid placing"></div><div class="fleet" id="pfleet"></div></div>
-  <div class="board-wrap"><h2>Enemy waters</h2><div id="enemy" class="grid"></div><div class="fleet" id="efleet"></div></div>
+  <div class="board-wrap"><h2>Tu flota</h2><div id="player" class="grid placing"></div><div class="fleet" id="pfleet"></div></div>
+  <div class="board-wrap"><h2>Aguas enemigas</h2><div id="enemy" class="grid"></div><div class="fleet" id="efleet"></div></div>
 </div>
 <div style="height:14px"></div>
 <div id="log"></div>
+<div id="result" role="alertdialog" aria-modal="true" aria-labelledby="result-big" aria-describedby="result-who result-why">
+  <div class="card">
+    <div class="icon" id="result-icon"></div>
+    <div class="big" id="result-big"></div>
+    <div class="who" id="result-who"></div>
+    <div class="why" id="result-why"></div>
+    <div class="actions">
+      <button id="result-again">Jugar de nuevo</button>
+      <button id="result-close" class="secondary">Ver tableros</button>
+    </div>
+  </div>
+</div>
 <div id="stocks">
-  <div class="tag">MAGNIFICENT 7</div>
+  <div class="tag">LOS 7 MAGNÍFICOS</div>
   <div class="tradingview-widget-container">
     <div class="tradingview-widget-container__widget"></div>
     <script src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
@@ -86,7 +111,7 @@
       "isTransparent": true,
       "displayMode": "adaptive",
       "colorTheme": "dark",
-      "locale": "en"
+      "locale": "es"
     }
     </script>
   </div>
@@ -166,7 +191,7 @@ function render(){
   ["rotate","random","reset","start"].forEach(id=>$(id).style.display = state.phase==="placing"?"":"none");
   $("again").style.display = state.phase==="over"?"":"none";
   $("hint").style.display = state.phase==="placing"?"":"none";
-  $("rotate").textContent = "Rotate (" + (state.horiz?"horizontal":"vertical") + ")";
+  $("rotate").textContent = "Girar (" + (state.horiz?"horizontal":"vertical") + ")";
 }
 function renderFleet(el,b,placing){
   el.innerHTML = FLEET.map(([nm,len],i)=>{
@@ -175,6 +200,15 @@ function renderFleet(el,b,placing){
     const cur = placing && i===b.ships.length;
     return `<span class="${gone?"gone":""} ${cur?"cur":""}">${cur?"▶ ":""}${nm} (${len})${placing&&s?" ✓":""}</span>`;
   }).join("");
+}
+function announce(win){
+  const R=$("result");
+  R.className = "show " + (win?"win":"lose");
+  $("result-icon").textContent = win ? "★" : "⚓";
+  $("result-big").textContent = win ? "¡GANASTE!" : "¡PERDISTE!";
+  $("result-who").textContent = win ? "¡Eres el GANADOR!" : "¡Eres el PERDEDOR!";
+  $("result-why").textContent = win ? "Hundiste toda la flota enemiga." : "El enemigo hundió toda tu flota.";
+  $("result-again").focus();
 }
 function setStatus(t){ $("status").textContent=t; }
 function log(t){ const d=document.createElement("div"); d.textContent=t; $("log").prepend(d); }
@@ -198,7 +232,7 @@ function clickPlace(r,c){
   if(!canPlace(state.player,r,c,len,state.horiz)) return;
   place(state.player,r,c,len,state.horiz,nm);
   render(); hoverPlace(r,c);
-  setStatus(state.player.ships.length===FLEET.length ? "Fleet ready! Press Start battle." : `Place your ${FLEET[state.player.ships.length][0]} (${FLEET[state.player.ships.length][1]}).`);
+  setStatus(state.player.ships.length===FLEET.length ? "¡Flota lista! Presiona «Iniciar batalla»." : `Coloca tu ${FLEET[state.player.ships.length][0]} (${FLEET[state.player.ships.length][1]}).`);
 }
 
 function fire(b,r,c){
@@ -212,10 +246,10 @@ const allSunk = b => b.ships.every(s=>s.hits===s.len);
 function playerFire(r,c){
   if(state.phase!=="battle"||state.turn!=="player"||state.enemy.shots[r][c]) return;
   const res = fire(state.enemy,r,c);
-  log(`You fire at ${name(r,c)}: ${res.result==="miss"?"miss.":res.result==="hit"?"HIT!":"HIT and SUNK the enemy "+res.ship.name+"!"}`);
-  if(allSunk(state.enemy)){ state.phase="over"; render(); setStatus("Victory! You sank the entire enemy fleet."); log("You win!"); return; }
+  log(`Disparas a ${name(r,c)}: ${res.result==="miss"?"agua.":res.result==="hit"?"¡TOCADO!":"¡TOCADO Y HUNDIDO! Hundiste su "+res.ship.name+"."}`);
+  if(allSunk(state.enemy)){ state.phase="over"; render(); setStatus("¡Victoria! Hundiste toda la flota enemiga."); log("¡Ganaste!"); announce(true); return; }
   state.turn="ai"; render();
-  setStatus(res.result==="miss"?"Miss. Enemy is aiming...":res.result==="hit"?"Hit! Enemy is aiming...":`You sank their ${res.ship.name}! Enemy is aiming...`);
+  setStatus(res.result==="miss"?"Agua. El enemigo está apuntando...":res.result==="hit"?"¡Tocado! El enemigo está apuntando...":`¡Hundiste su ${res.ship.name}! El enemigo está apuntando...`);
   setTimeout(aiTurn, 650);
 }
 
@@ -264,10 +298,10 @@ function aiTurn(){
   if(state.phase!=="battle") return;
   const [r,c] = aiPick();
   const res = fire(state.player,r,c);
-  log(`Enemy fires at ${name(r,c)}: ${res.result==="miss"?"miss.":res.result==="hit"?"HIT your "+res.ship.name+"!":"SUNK your "+res.ship.name+"!"}`);
-  if(allSunk(state.player)){ state.phase="over"; render(); setStatus("Defeat! The enemy sank your entire fleet."); log("Enemy wins."); return; }
+  log(`El enemigo dispara a ${name(r,c)}: ${res.result==="miss"?"agua.":res.result==="hit"?"¡TOCÓ tu "+res.ship.name+"!":"¡HUNDIÓ tu "+res.ship.name+"!"}`);
+  if(allSunk(state.player)){ state.phase="over"; render(); setStatus("¡Derrota! El enemigo hundió toda tu flota."); log("Gana el enemigo."); announce(false); return; }
   state.turn="player"; render();
-  setStatus(`Enemy ${res.result==="miss"?"missed at":res.result==="hit"?"hit you at":"sank your "+res.ship.name+" at"} ${name(r,c)}. Your turn — fire!`);
+  setStatus(`El enemigo ${res.result==="miss"?"falló en":res.result==="hit"?"te tocó en":"hundió tu "+res.ship.name+" en"} ${name(r,c)}. ¡Tu turno, dispara!`);
 }
 
 function init(){
@@ -276,17 +310,22 @@ function init(){
   buildGrid($("player"), clickPlace, hoverPlace);
   buildGrid($("enemy"), playerFire);
   $("log").innerHTML="";
-  setStatus(`Place your ${FLEET[0][0]} (${FLEET[0][1]}).`);
+  $("result").className="";
+  setStatus(`Coloca tu ${FLEET[0][0]} (${FLEET[0][1]}).`);
   render();
 }
 function rotate(){ state.horiz=!state.horiz; render(); if(state.hover) hoverPlace(...state.hover); }
 
 $("rotate").onclick = rotate;
 document.addEventListener("keydown",e=>{ if((e.key==="r"||e.key==="R") && state.phase==="placing") rotate(); });
-$("random").onclick = ()=>{ state.player=newBoard(); randomFleet(state.player); render(); setStatus("Fleet ready! Press Start battle."); };
-$("reset").onclick = ()=>{ state.player=newBoard(); render(); setStatus(`Place your ${FLEET[0][0]} (${FLEET[0][1]}).`); };
-$("start").onclick = ()=>{ state.phase="battle"; state.turn="player"; render(); setStatus("Battle started! Click a cell in Enemy waters to fire."); log("Battle started."); };
+$("random").onclick = ()=>{ state.player=newBoard(); randomFleet(state.player); render(); setStatus("¡Flota lista! Presiona «Iniciar batalla»."); };
+$("reset").onclick = ()=>{ state.player=newBoard(); render(); setStatus(`Coloca tu ${FLEET[0][0]} (${FLEET[0][1]}).`); };
+$("start").onclick = ()=>{ state.phase="battle"; state.turn="player"; render(); setStatus("¡Comienza la batalla! Haz clic en una casilla de «Aguas enemigas» para disparar."); log("Comienza la batalla."); };
 $("again").onclick = init;
+$("result-again").onclick = init;
+$("result-close").onclick = ()=>{ $("result").className=""; };
+$("result").addEventListener("click",e=>{ if(e.target.id==="result") $("result").className=""; });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("result").className=""; });
 new ResizeObserver(()=>document.body.style.paddingBottom = $("stocks").offsetHeight + 16 + "px").observe($("stocks"));
 init();
 </script>
