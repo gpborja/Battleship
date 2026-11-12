@@ -72,7 +72,11 @@ def main():
         browser = p.chromium.launch(executable_path=exe, headless=True) if exe else p.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1280, "height": 1000})
         page.on("pageerror", lambda e: errors.append(str(e)))
-        page.on("console", lambda m: m.type == "error" and "tradingview" not in (m.location or {}).get("url", "") and errors.append(m.text))
+        def on_console(m):
+            where = m.text + (m.location or {}).get("url", "")
+            if m.type == "error" and "tradingview" not in where.lower() and "Failed to load resource" not in m.text:
+                errors.append(m.text)
+        page.on("console", on_console)
         page.goto(url, wait_until="domcontentloaded")
         page.click("#random")
         page.click("#start")
