@@ -193,7 +193,7 @@ async function renderHistory() {
   const body = $("history");
   if (state.selectedId == null) return;
   const txns = await api(`/accounts/${state.selectedId}/transactions`);
-  $("txn-count").textContent = `${txns.length} entries`;
+  $("txn-count").textContent = `${txns.length} ${txns.length === 1 ? "entry" : "entries"}`;
   if (!txns.length) {
     body.innerHTML = '<tr><td colspan="4" class="empty">No transactions yet.</td></tr>';
     return;
