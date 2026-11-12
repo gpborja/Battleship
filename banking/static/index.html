@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banco Ejemplo — Dashboard</title>
+<style>
+  :root{--bg:#0f2a5c;--panel:#0b1f45e6;--txt:#fff8ec;--muted:#fff8ecaa;--accent:#f7a800;--rosa:#e4007c;--verde:#006847;--rojo:#ce1126;--ok:#3ddc97;--bad:#ff4d6a;--line:#ffffff1f}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--txt);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:0 16px 40px;
+    background:radial-gradient(circle,#ffffff14 0 5px,transparent 6px) 0 0/48px 48px,radial-gradient(circle,#f7a80018 0 3px,transparent 4px) 24px 24px/48px 48px,conic-gradient(from 45deg,#13336e 25%,var(--bg) 0 50%,#13336e 0 75%,var(--bg) 0) 0 0/48px 48px;background-color:var(--bg)}
+  #papel{width:calc(100% + 32px);display:flex;gap:6px;padding:0 8px;border-top:3px solid #3b2a1a;margin-bottom:6px}
+  #papel span{flex:1;height:36px;max-width:70px;clip-path:polygon(0 0,100% 0,100% 82%,87.5% 100%,75% 82%,62.5% 100%,50% 82%,37.5% 100%,25% 82%,12.5% 100%,0 82%);
+    -webkit-mask:radial-gradient(circle,transparent 0 3px,#000 4px) 0 0/12px 12px;mask:radial-gradient(circle,transparent 0 3px,#000 4px) 0 0/12px 12px}
+  #papel span:nth-child(6n+1){background:var(--rosa)}#papel span:nth-child(6n+2){background:var(--accent)}#papel span:nth-child(6n+3){background:var(--verde)}
+  #papel span:nth-child(6n+4){background:#00a6d6}#papel span:nth-child(6n+5){background:var(--rojo)}#papel span:nth-child(6n){background:#8e44ad}
+  h1{margin:4px 0 0;letter-spacing:6px;font-size:34px;background:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:1px #ffffff55;filter:drop-shadow(0 2px 2px #0008)}
+  .subtitle{font-family:"Brush Script MT","Segoe Script",cursive;font-size:24px;color:var(--accent);margin:-2px 0 14px}
+  main{width:min(1100px,100%);display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+  @media (max-width:820px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);padding:14px 16px 16px;border-radius:10px;box-shadow:0 0 0 3px var(--accent),0 6px 18px #0009;position:relative;margin-bottom:20px}
+  .panel::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;border-radius:7px 7px 0 0;background:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%)}
+  .panel h2{margin:6px 0 10px;font-size:16px;color:var(--accent);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .panel h2 small{font-size:13px;color:var(--muted);font-weight:400}
+  #accounts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:420px;overflow:auto}
+  #accounts li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;background:#ffffff0d;cursor:pointer;border-left:4px solid transparent}
+  #accounts li:hover{background:#ffffff1a}
+  #accounts li.sel{border-left-color:var(--rosa);background:#e4007c26}
+  #accounts .name{font-weight:600}
+  #accounts .num{font-size:12px;color:var(--muted)}
+  .money{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  .total{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:14px}
+  form{display:flex;flex-direction:column;gap:8px}
+  label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  input,select{font:inherit;padding:7px 9px;border-radius:6px;border:1px solid #ffffff33;background:#0a1a3a;color:var(--txt);width:100%}
+  input:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
+  button{background:var(--accent);color:#1a1a1a;border:0;border-radius:6px;padding:8px 16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 #0006}
+  button.secondary{background:var(--rosa);color:#fff}
+  button:disabled{opacity:.4;cursor:default}
+  .summary{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+  .summary .owner{font-size:22px;font-weight:700}
+  .summary .meta{font-size:13px;color:var(--muted)}
+  .summary .bal{font-size:34px;color:var(--accent)}
+  .ops{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:640px){.ops{grid-template-columns:1fr}}
+  .ops form{background:#ffffff0a;padding:10px;border-radius:8px}
+  .ops h3{margin:0 0 2px;font-size:14px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  td.amt{text-align:right}
+  .in{color:var(--ok)}.out{color:var(--bad)}
+  .badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:700;background:#ffffff1f}
+  .badge.deposit{background:#006847}.badge.withdrawal{background:#ce1126}.badge.transfer{background:#e4007c}
+  .empty{color:var(--muted);text-align:center;padding:18px 0}
+  #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120px);transition:transform .25s;z-index:20;background:var(--panel);padding:10px 18px;border-radius:8px;box-shadow:0 0 0 3px var(--ok),0 8px 24px #000a;font-weight:600;max-width:90vw}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  #toast.err{box-shadow:0 0 0 3px var(--bad),0 8px 24px #000a}
+</style>
+</head>
+<body>
+<div id="papel" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<h1>BANCO EJEMPLO</h1>
+<div class="subtitle">✦ Sample banking dashboard ✦</div>
+
+<main>
+  <div>
+    <section class="panel">
+      <h2>Accounts <small id="count"></small></h2>
+      <ul id="accounts"></ul>
+      <div class="total"><span>Total holdings</span><span class="money" id="total">—</span></div>
+    </section>
+    <section class="panel">
+      <h2>Open an account</h2>
+      <form id="create-form">
+        <label>Owner name<input name="owner_name" required maxlength="100" placeholder="e.g. Frida Kahlo"></label>
+        <label>Initial deposit<input name="initial_deposit" type="number" min="0" step="0.01" value="0"></label>
+        <button type="submit" class="secondary">Create account</button>
+      </form>
+    </section>
+  </div>
+
+  <div>
+    <section class="panel">
+      <div class="summary">
+        <div>
+          <div class="owner" id="owner">Select an account</div>
+          <div class="meta" id="meta">Choose an account on the left to see its balance and activity.</div>
+        </div>
+        <div class="money bal" id="balance"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Move money</h2>
+      <div class="ops">
+        <form id="deposit-form">
+          <h3 class="in">Deposit</h3>
+          <label>Amount<input name="amount" type="number" min="0.01" step="0.01" required></label>
+          <button type="submit">Deposit</button>
+        </form>
+        <form id="withdraw-form">
+          <h3 class="out">Withdraw</h3>
+          <label>Amount<input name="amount" type="number" min="0.01" step="0.01" required></label>
+          <button type="submit">Withdraw</button>
+        </form>
+        <form id="transfer-form">
+          <h3>Transfer</h3>
+          <label>To account<select name="to_account_id" required></select></label>
+          <label>Amount<input name="amount" type="number" min="0.01" step="0.01" required></label>
+          <button type="submit">Transfer</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Transaction history <small id="txn-count"></small></h2>
+      <table>
+        <thead><tr><th>Date</th><th>Type</th><th>Details</th><th style="text-align:right">Amount</th></tr></thead>
+        <tbody id="history"><tr><td colspan="4" class="empty">No account selected.</td></tr></tbody>
+      </table>
+    </section>
+  </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const API = "/api";
+const state = { accounts: [], selectedId: null };
+const $ = (id) => document.getElementById(id);
+const fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+const money = (n) => fmt.format(n);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const acctLabel = (id) => {
+  const a = state.accounts.find((x) => x.id === id);
+  return a ? `#${id} ${a.owner_name}` : `#${id}`;
+};
+
+async function api(path, options = {}) {
+  const res = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...options });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    let msg = `Request failed (${res.status})`;
+    if (body && typeof body.detail === "string") msg = body.detail;
+    else if (body && Array.isArray(body.detail)) msg = body.detail.map((d) => d.msg).join("; ");
+    throw new Error(msg);
+  }
+  return body;
+}
+
+let toastTimer;
+function toast(msg, isError = false) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.toggle("err", isError);
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
+}
+
+function renderAccounts() {
+  const list = $("accounts");
+  list.innerHTML = state.accounts.length ? "" : '<li class="empty">No accounts yet — create one below.</li>';
+  for (const a of state.accounts) {
+    const li = document.createElement("li");
+    li.className = a.id === state.selectedId ? "sel" : "";
+    li.innerHTML = `<div><div class="name">${esc(a.owner_name)}</div><div class="num">Account #${a.id}</div></div><span class="money">${money(a.balance)}</span>`;
+    li.onclick = () => select(a.id);
+    list.appendChild(li);
+  }
+  $("count").textContent = `${state.accounts.length} total`;
+  $("total").textContent = money(state.accounts.reduce((s, a) => s + a.balance, 0));
+
+  const sel = document.querySelector("#transfer-form select");
+  const others = state.accounts.filter((a) => a.id !== state.selectedId);
+  sel.innerHTML = others.map((a) => `<option value="${a.id}">${esc(acctLabel(a.id))}</option>`).join("");
+}
+
+function renderSelected() {
+  const a = state.accounts.find((x) => x.id === state.selectedId);
+  const disabled = !a;
+  document.querySelectorAll(".ops button, .ops input, .ops select").forEach((el) => (el.disabled = disabled));
+  if (!a) return;
+  $("owner").textContent = a.owner_name;
+  $("meta").textContent = `Account #${a.id} · opened ${new Date(a.created_at).toLocaleDateString()}`;
+  $("balance").textContent = money(a.balance);
+}
+
+async function renderHistory() {
+  const body = $("history");
+  if (state.selectedId == null) return;
+  const txns = await api(`/accounts/${state.selectedId}/transactions`);
+  $("txn-count").textContent = `${txns.length} entries`;
+  if (!txns.length) {
+    body.innerHTML = '<tr><td colspan="4" class="empty">No transactions yet.</td></tr>';
+    return;
+  }
+  body.innerHTML = txns.map((t) => {
+    let details = t.type === "deposit" ? "Cash deposit" : t.type === "withdrawal" ? "Cash withdrawal" : "";
+    if (t.type === "transfer") {
+      details = t.direction === "out" ? `To ${esc(acctLabel(t.related_account_id))}` : `From ${esc(acctLabel(t.account_id))}`;
+    }
+    const sign = t.direction === "in" ? "+" : "−";
+    return `<tr>
+      <td>${new Date(t.timestamp).toLocaleString()}</td>
+      <td><span class="badge ${t.type}">${t.type}</span></td>
+      <td>${details}</td>
+      <td class="amt money ${t.direction}">${sign}${money(t.amount)}</td>
+    </tr>`;
+  }).join("");
+}
+
+async function loadAccounts() {
+  state.accounts = await api("/accounts");
+  if (state.selectedId == null && state.accounts.length) state.selectedId = state.accounts[0].id;
+  renderAccounts();
+  renderSelected();
+}
+
+async function refresh() {
+  await loadAccounts();
+  await renderHistory();
+}
+
+async function select(id) {
+  state.selectedId = id;
+  renderAccounts();
+  renderSelected();
+  await renderHistory();
+}
+
+function onSubmit(formId, handler) {
+  const form = $(formId);
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector("button");
+    btn.disabled = true;
+    try {
+      const msg = await handler(Object.fromEntries(new FormData(form)));
+      form.querySelectorAll("input[name=amount]").forEach((i) => (i.value = ""));
+      toast(msg);
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      btn.disabled = false;
+      renderSelected();
+    }
+  });
+}
+
+onSubmit("create-form", async (f) => {
+  const a = await api("/accounts", { method: "POST", body: JSON.stringify({ owner_name: f.owner_name, initial_deposit: Number(f.initial_deposit || 0) }) });
+  $("create-form").reset();
+  state.selectedId = a.id;
+  await refresh();
+  return `Opened account #${a.id} for ${a.owner_name}`;
+});
+
+onSubmit("deposit-form", async (f) => {
+  const r = await api(`/accounts/${state.selectedId}/deposit`, { method: "POST", body: JSON.stringify({ amount: Number(f.amount) }) });
+  await refresh();
+  return `Deposited ${money(r.transaction.amount)}`;
+});
+
+onSubmit("withdraw-form", async (f) => {
+  const r = await api(`/accounts/${state.selectedId}/withdraw`, { method: "POST", body: JSON.stringify({ amount: Number(f.amount) }) });
+  await refresh();
+  return `Withdrew ${money(r.transaction.amount)}`;
+});
+
+onSubmit("transfer-form", async (f) => {
+  const r = await api("/transfers", {
+    method: "POST",
+    body: JSON.stringify({ from_account_id: state.selectedId, to_account_id: Number(f.to_account_id), amount: Number(f.amount) }),
+  });
+  await refresh();
+  return `Transferred ${money(r.transaction.amount)} to ${acctLabel(r.to_account.id)}`;
+});
+
+renderSelected();
+refresh().catch((err) => toast(`Could not reach the API: ${err.message}`, true));
+</script>
+</body>
+</html>
