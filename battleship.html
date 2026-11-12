@@ -57,7 +57,15 @@
   #result.win .big{color:var(--accent)}
   #result.lose .big{color:#ff4d6a}
   #result .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-  @media (max-width:480px){h1{font-size:28px;letter-spacing:3px}}
+  @media (max-width:480px){
+    h1{font-size:28px;letter-spacing:3px}
+    body{padding-left:8px;padding-right:8px}
+    #papel{width:calc(100% + 16px)}
+    .boards{width:100%}
+    .board-wrap{width:100%;max-width:396px;padding:10px 8px 12px}
+    .grid{grid-template-columns:18px repeat(10,minmax(0,1fr));grid-template-rows:18px;grid-auto-rows:auto}
+    .cell{aspect-ratio:1}
+  }
   @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 </style>
 </head>
@@ -204,11 +212,19 @@ function renderFleet(el,b,placing){
 function announce(win){
   const R=$("result");
   R.className = "show " + (win?"win":"lose");
+  for(const el of document.body.children) if(el!==R) el.inert = true;
   $("result-icon").textContent = win ? "★" : "⚓";
   $("result-big").textContent = win ? "¡GANASTE!" : "¡PERDISTE!";
   $("result-who").textContent = win ? "¡Eres el GANADOR!" : "¡Eres el PERDEDOR!";
   $("result-why").textContent = win ? "Hundiste toda la flota enemiga." : "El enemigo hundió toda tu flota.";
   $("result-again").focus();
+}
+function hideResult(){
+  const R=$("result");
+  if(!R.classList.contains("show")) return;
+  R.className = "";
+  for(const el of document.body.children) el.inert = false;
+  if(state.phase==="over") $("again").focus();
 }
 function setStatus(t){ $("status").textContent=t; }
 function log(t){ const d=document.createElement("div"); d.textContent=t; $("log").prepend(d); }
@@ -310,7 +326,7 @@ function init(){
   buildGrid($("player"), clickPlace, hoverPlace);
   buildGrid($("enemy"), playerFire);
   $("log").innerHTML="";
-  $("result").className="";
+  hideResult();
   setStatus(`Coloca tu ${FLEET[0][0]} (${FLEET[0][1]}).`);
   render();
 }
@@ -323,9 +339,17 @@ $("reset").onclick = ()=>{ state.player=newBoard(); render(); setStatus(`Coloca 
 $("start").onclick = ()=>{ state.phase="battle"; state.turn="player"; render(); setStatus("¡Comienza la batalla! Haz clic en una casilla de «Aguas enemigas» para disparar."); log("Comienza la batalla."); };
 $("again").onclick = init;
 $("result-again").onclick = init;
-$("result-close").onclick = ()=>{ $("result").className=""; };
-$("result").addEventListener("click",e=>{ if(e.target.id==="result") $("result").className=""; });
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("result").className=""; });
+$("result-close").onclick = hideResult;
+$("result").addEventListener("click",e=>{ if(e.target.id==="result") hideResult(); });
+document.addEventListener("keydown",e=>{
+  if(!$("result").classList.contains("show")) return;
+  if(e.key==="Escape") hideResult();
+  if(e.key==="Tab"){
+    const btns=[...$("result").querySelectorAll("button")], i=btns.indexOf(document.activeElement);
+    e.preventDefault();
+    btns[(i + (e.shiftKey?-1:1) + btns.length) % btns.length].focus();
+  }
+});
 new ResizeObserver(()=>document.body.style.paddingBottom = $("stocks").offsetHeight + 16 + "px").observe($("stocks"));
 init();
 </script>
