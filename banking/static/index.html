@@ -16,8 +16,9 @@
   #papel span:nth-child(6n+4){background:#00a6d6}#papel span:nth-child(6n+5){background:var(--rojo)}#papel span:nth-child(6n){background:#8e44ad}
   h1{margin:4px 0 0;letter-spacing:6px;font-size:34px;background:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:1px #ffffff55;filter:drop-shadow(0 2px 2px #0008)}
   .subtitle{font-family:"Brush Script MT","Segoe Script",cursive;font-size:24px;color:var(--accent);margin:-2px 0 14px}
-  main{width:min(1100px,100%);display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
-  @media (max-width:820px){main{grid-template-columns:1fr}}
+  main{width:min(1100px,100%);display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+  main>div{min-width:0}
+  @media (max-width:820px){main{grid-template-columns:minmax(0,1fr)}}
   .panel{background:var(--panel);padding:14px 16px 16px;border-radius:10px;box-shadow:0 0 0 3px var(--accent),0 6px 18px #0009;position:relative;margin-bottom:20px}
   .panel::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;border-radius:7px 7px 0 0;background:linear-gradient(90deg,var(--verde) 0 33%,#fff 33% 66%,var(--rojo) 66%)}
   .panel h2{margin:6px 0 10px;font-size:16px;color:var(--accent);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -41,8 +42,9 @@
   .summary .owner{font-size:22px;font-weight:700}
   .summary .meta{font-size:13px;color:var(--muted)}
   .summary .bal{font-size:34px;color:var(--accent)}
-  .ops{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  @media (max-width:640px){.ops{grid-template-columns:1fr}}
+  .ops{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  @media (max-width:640px){.ops{grid-template-columns:minmax(0,1fr)}}
+  .table-wrap{overflow-x:auto}
   .ops form{background:#ffffff0a;padding:10px;border-radius:8px}
   .ops h3{margin:0 0 2px;font-size:14px}
   table{width:100%;border-collapse:collapse;font-size:14px}
@@ -115,10 +117,10 @@
 
     <section class="panel">
       <h2>Transaction history <small id="txn-count"></small></h2>
-      <table>
+      <div class="table-wrap"><table>
         <thead><tr><th>Date</th><th>Type</th><th>Details</th><th style="text-align:right">Amount</th></tr></thead>
         <tbody id="history"><tr><td colspan="4" class="empty">No account selected.</td></tr></tbody>
-      </table>
+      </table></div>
     </section>
   </div>
 </main>
