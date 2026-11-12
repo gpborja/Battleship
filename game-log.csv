@@ -1,0 +1,2 @@
+date_utc,main_commit,strategy,winner,player_shots,player_hits,player_accuracy_pct,random_shots,smart_shots,ai_shots,ai_hits,ai_accuracy_pct,enemy_ships_left,player_ships_left,duration_s,result_popup,js_errors
+2026-11-12 13:20,10589af,mixed,player,43,17,39.5,18,25,42,14,33.3,0,1,32.2,¡GANASTE!,none
