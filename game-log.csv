@@ -7,3 +7,4 @@ date_utc,main_commit,strategy,winner,player_shots,player_hits,player_accuracy_pc
 2026-11-17 13:19,10589af,mixed,computer,30,6,20.0,16,14,30,17,56.7,4,0,23.1,¡PERDISTE!,none
 2026-11-18 13:20,10589af,mixed,computer,44,14,31.8,26,18,44,17,38.6,1,0,33.7,¡PERDISTE!,none
 2026-11-19 13:20,10589af,mixed,computer,37,13,35.1,22,15,37,17,45.9,1,0,28.2,¡PERDISTE!,none
+2026-11-20 13:20,10589af,mixed,player,44,17,38.6,14,30,43,15,34.9,0,1,32.5,¡GANASTE!,none
